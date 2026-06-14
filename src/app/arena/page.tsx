@@ -24,9 +24,21 @@ function ArenaContent() {
     fetch('/api/arenas')
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.arenas.length > 0) {
-          setArenas(data.arenas);
-          setSelectedArenaId(data.arenas[0].id);
+        if (data.success) {
+          let list = [...data.arenas];
+          try {
+             const temp = localStorage.getItem('temp_arena');
+             if (temp) {
+                const parsed = JSON.parse(temp);
+                // Prepend custom arena so it's selected by default
+                list = [parsed, ...list.filter(a => a.id !== parsed.id)];
+             }
+          } catch(e) {}
+          
+          if (list.length > 0) {
+            setArenas(list);
+            setSelectedArenaId(list[0].id);
+          }
         }
       });
   }, []);
@@ -54,10 +66,19 @@ function ArenaContent() {
         }
       } catch(e) {}
 
+      let arenaData = null;
+      try {
+        const temp = localStorage.getItem('temp_arena');
+        if (temp) {
+          const parsed = JSON.parse(temp);
+          if (parsed.id === selectedArenaId) arenaData = parsed;
+        }
+      } catch(e) {}
+
       const response = await fetch('/api/run-arena', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, arenaId: selectedArenaId, agentData }),
+        body: JSON.stringify({ agentId, arenaId: selectedArenaId, agentData, arenaData }),
       });
 
       if (!response.body) throw new Error('No readable stream');

@@ -51,6 +51,15 @@ export default function ArenaBuilderPage() {
       const data = await res.json();
       
       if (data.success) {
+        // Save to localStorage as a fallback for Vercel statelessness
+        const tempArena = {
+          id: data.arenaId,
+          name,
+          description,
+          ticks
+        };
+        localStorage.setItem('temp_arena', JSON.stringify(tempArena));
+
         // Then publish on-chain with the generated URI
         writeContract({
           address: CRUCIBLE_CONTRACT_ADDRESS as `0x${string}`,
@@ -148,11 +157,24 @@ export default function ArenaBuilderPage() {
         </div>
 
         {/* Submit */}
-        <div className="pt-6">
+        <div className="pt-6 flex justify-between items-center">
+          <button 
+            type="button" 
+            onClick={() => {
+              // Bypass completely for demo
+              const tempId = `arena_bypass_${Date.now()}`;
+              const tempArena = { id: tempId, name, description, ticks };
+              localStorage.setItem('temp_arena', JSON.stringify(tempArena));
+              router.push('/');
+            }}
+            className="bg-transparent border border-slate-700 text-slate-400 hover:text-white font-mono font-bold py-3 px-4 rounded transition-colors text-xs"
+          >
+            Bypass Tx (Demo Mode)
+          </button>
           <button 
             type="submit" 
             disabled={isSubmitting || isTxPending || isTxConfirming}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+            className="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded transition-all flex justify-center items-center gap-2 disabled:opacity-50"
           >
             {isTxConfirming ? (
               <>Publishing on-chain...</>
@@ -162,13 +184,13 @@ export default function ArenaBuilderPage() {
               <>Stake & Publish Arena</>
             )}
           </button>
+        </div>
           
           {isTxSuccess && (
             <p className="mt-4 text-green-400 text-center text-sm">
               Arena published successfully! Redirecting...
             </p>
           )}
-        </div>
       </form>
     </div>
   );
