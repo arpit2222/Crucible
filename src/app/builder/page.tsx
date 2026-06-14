@@ -158,7 +158,14 @@ export default function BuilderPage() {
           </div>
         )}
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          <button 
+            type="button" 
+            onClick={() => dbAgentId && router.push(`/arena?agentId=${dbAgentId}`)}
+            className="bg-transparent border border-slate-700 text-slate-400 hover:text-white font-mono font-bold py-3 px-4 rounded transition-colors text-xs"
+          >
+            Bypass Staking (Demo Mode)
+          </button>
           <button type="submit" disabled={loading || isConfirming} className="bg-white text-black hover:bg-slate-200 font-mono font-bold py-3 px-8 rounded transition-colors disabled:opacity-50">
             {isConfirming ? 'Waiting for confirmation...' : loading ? 'Approve Wallet Tx...' : 'Stake & Send to Arena →'}
           </button>

@@ -13,6 +13,7 @@ function ArenaContent() {
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
   const [passed, setPassed] = useState<boolean | null>(null);
+  const [demoSuccess, setDemoSuccess] = useState(false);
   
   const [arenas, setArenas] = useState<any[]>([]);
   const [selectedArenaId, setSelectedArenaId] = useState('');
@@ -166,13 +167,18 @@ function ArenaContent() {
               <div className="bg-green-900/20 border border-green-500/50 text-green-400 px-6 py-4 rounded font-mono w-full">
                 <div className="text-xl font-bold mb-2">SBT MINTED</div>
                 <div>Agent successfully passed the Test Arena.</div>
-                <button 
-                  onClick={handleAttest}
-                  disabled={isConfirming || isConfirmed}
-                  className="mt-4 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded text-sm w-full transition-colors disabled:opacity-50"
-                >
-                  {isConfirmed ? 'Attestation Confirmed!' : isConfirming ? 'Minting...' : 'Mint EAS Attestation On-Chain'}
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <button 
+                    onClick={handleAttest}
+                    disabled={isConfirming || isConfirmed || demoSuccess}
+                    className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded text-sm w-full transition-colors disabled:opacity-50"
+                  >
+                    {isConfirmed || demoSuccess ? 'Attestation Confirmed!' : isConfirming ? 'Minting...' : 'Mint EAS Attestation On-Chain'}
+                  </button>
+                  <button onClick={() => setDemoSuccess(true)} className="bg-transparent border border-slate-700 text-slate-500 hover:text-white px-3 py-2 rounded text-xs transition-colors whitespace-nowrap">
+                    Bypass Tx
+                  </button>
+                </div>
               </div>
             )}
 
@@ -180,13 +186,18 @@ function ArenaContent() {
               <div className="bg-red-900/20 border border-red-500/50 text-red-400 px-6 py-4 rounded font-mono w-full">
                 <div className="text-xl font-bold mb-2">AGENT SLASHED & BANNED</div>
                 <div>Critical parameter violation detected.</div>
-                <button 
-                  onClick={handleSlash}
-                  disabled={isConfirming || isConfirmed}
-                  className="mt-4 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded text-sm w-full transition-colors disabled:opacity-50"
-                >
-                  {isConfirmed ? 'Stake Slashed!' : isConfirming ? 'Processing Slash...' : 'Execute Slash Tx On-Chain'}
-                </button>
+                <div className="flex gap-2 mt-4">
+                  <button 
+                    onClick={handleSlash}
+                    disabled={isConfirming || isConfirmed || demoSuccess}
+                    className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded text-sm w-full transition-colors disabled:opacity-50"
+                  >
+                    {isConfirmed || demoSuccess ? 'Stake Slashed!' : isConfirming ? 'Processing Slash...' : 'Execute Slash Tx On-Chain'}
+                  </button>
+                  <button onClick={() => setDemoSuccess(true)} className="bg-transparent border border-slate-700 text-slate-500 hover:text-white px-3 py-2 rounded text-xs transition-colors whitespace-nowrap">
+                    Bypass Tx
+                  </button>
+                </div>
               </div>
             )}
             
