@@ -28,8 +28,10 @@ export interface ArenaConfig {
   createdAt: string;
 }
 
-const dbPath = path.join(process.cwd(), 'agents.json');
-const arenasPath = path.join(process.cwd(), 'arenas.json');
+import os from 'os';
+
+const dbPath = path.join(os.tmpdir(), 'agents.json');
+const arenasPath = path.join(os.tmpdir(), 'arenas.json');
 
 const DEFAULT_AGENTS: AgentConfig[] = [
   {
