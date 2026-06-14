@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther } from 'viem';
 import { crucibleAbi, CRUCIBLE_CONTRACT_ADDRESS } from '@/lib/contracts';
 
-export default function ArenaPage() {
+function ArenaContent() {
   const searchParams = useSearchParams();
   const agentId = searchParams.get('agentId');
-  const [logs, setLogs] = useState<{type: string, message?: string, object?: any}[]>([]);
+  const [logs, setLogs] = useState<{type: string, message?: string, object?: any, tick?: number}[]>([]);
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
   const [passed, setPassed] = useState<boolean | null>(null);
@@ -77,7 +78,7 @@ export default function ArenaPage() {
       address: CRUCIBLE_CONTRACT_ADDRESS as `0x${string}`,
       abi: crucibleAbi,
       functionName: 'slashAgent',
-      args: [1n, 100000000000000000n, "Parameter Violation in Test Arena"], // Mock ID 1, 0.1 ETH
+      args: [BigInt(1), parseEther("0.1"), "Parameter Violation in Test Arena"], // Mock ID 1, 0.1 ETH
     });
   };
 
@@ -88,7 +89,7 @@ export default function ArenaPage() {
       address: CRUCIBLE_CONTRACT_ADDRESS as `0x${string}`,
       abi: crucibleAbi,
       functionName: 'recordRun',
-      args: [1n, 1n, true], // Mock Agent 1, Arena 1, Passed
+      args: [BigInt(1), BigInt(1), true], // Mock Agent 1, Arena 1, Passed
     });
   };
 
@@ -182,5 +183,13 @@ export default function ArenaPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ArenaPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-white font-mono flex justify-center mt-20">Loading Arena...</div>}>
+      <ArenaContent />
+    </Suspense>
   );
 }
