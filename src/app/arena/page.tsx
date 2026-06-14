@@ -44,10 +44,19 @@ function ArenaContent() {
     setPassed(null);
 
     try {
+      let agentData = null;
+      try {
+        const temp = localStorage.getItem('temp_agent');
+        if (temp) {
+          const parsed = JSON.parse(temp);
+          if (parsed.id === agentId) agentData = parsed;
+        }
+      } catch(e) {}
+
       const response = await fetch('/api/run-arena', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId, arenaId: selectedArenaId }),
+        body: JSON.stringify({ agentId, arenaId: selectedArenaId, agentData }),
       });
 
       if (!response.body) throw new Error('No readable stream');

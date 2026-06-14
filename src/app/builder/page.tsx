@@ -47,6 +47,15 @@ export default function BuilderPage() {
       const data = await res.json();
       if (data.success) {
         setDbAgentId(data.agentId);
+        
+        // Save to localStorage as a fallback for stateless Vercel backend
+        const tempAgent = {
+          id: data.agentId,
+          ...formData,
+          allowedAssets: formData.allowedAssets.split(',').map(s => s.trim())
+        };
+        localStorage.setItem('temp_agent', JSON.stringify(tempAgent));
+
         // 2. Trigger On-Chain Staking Transaction
         writeContract({
           address: CRUCIBLE_CONTRACT_ADDRESS as `0x${string}`,

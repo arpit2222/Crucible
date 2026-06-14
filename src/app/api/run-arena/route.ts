@@ -8,9 +8,13 @@ export const runtime = 'nodejs';
 export const maxDuration = 60; // Allow 60 seconds for the test arena
 
 export async function POST(request: NextRequest) {
-  const { agentId, arenaId } = await request.json();
+  const { agentId, arenaId, agentData } = await request.json();
 
-  const agent = getAgent(agentId);
+  let agent = getAgent(agentId);
+  if (!agent && agentData && agentData.id === agentId) {
+    agent = agentData;
+  }
+  
   if (!agent) {
     return new Response(JSON.stringify({ error: 'Agent not found' }), { status: 404 });
   }
