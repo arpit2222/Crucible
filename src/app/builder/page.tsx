@@ -9,7 +9,7 @@ import { crucibleAbi, CRUCIBLE_CONTRACT_ADDRESS } from '@/lib/contracts';
 export default function BuilderPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [stakeAmount, setStakeAmount] = useState('0.1');
+  const [stakeAmount, setStakeAmount] = useState('0.001');
   const [dbAgentId, setDbAgentId] = useState<string | null>(null);
 
   const { data: hash, writeContract, error: writeError } = useWriteContract();
