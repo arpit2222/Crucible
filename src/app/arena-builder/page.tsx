@@ -40,7 +40,6 @@ export default function ArenaBuilderPage() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // First save the arena configuration off-chain
     try {
       const res = await fetch('/api/arenas', {
         method: 'POST',
@@ -51,7 +50,6 @@ export default function ArenaBuilderPage() {
       const data = await res.json();
       
       if (data.success) {
-        // Save to localStorage as a fallback for Vercel statelessness
         const tempArena = {
           id: data.arenaId,
           name,
@@ -60,7 +58,6 @@ export default function ArenaBuilderPage() {
         };
         localStorage.setItem('temp_arena', JSON.stringify(tempArena));
 
-        // Then publish on-chain with the generated URI
         writeContract({
           address: CRUCIBLE_CONTRACT_ADDRESS as `0x${string}`,
           abi: crucibleAbi,
@@ -79,118 +76,120 @@ export default function ArenaBuilderPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-12">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h1 className="text-4xl font-bold font-mono tracking-tighter mb-2">Build Arena</h1>
-          <p className="text-slate-400">Design a custom test environment to evaluate DeFi agents.</p>
-        </div>
+    <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6">
+      <div className="mb-10 border-b border-white/10 pb-6">
+        <h1 className="text-4xl font-sans font-bold text-white tracking-tight mb-2">Build Arena</h1>
+        <p className="text-slate-400 font-sans text-lg font-light">Design a custom test environment to evaluate DeFi agents.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-slate-900/50 p-8 rounded-xl border border-slate-800">
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-xl">
         
         {/* Arena Metadata */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-1">Arena Name</label>
+            <label className="block text-sm font-sans font-medium text-slate-300 mb-2">Arena Name</label>
             <input 
               type="text" 
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. USDC Depeg Event"
-              className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+              className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white font-sans focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-1">Description</label>
+            <label className="block text-sm font-sans font-medium text-slate-300 mb-2">Description</label>
             <textarea 
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the scenario context..."
-              className="w-full bg-slate-950 border border-slate-800 rounded p-3 text-white h-24 focus:border-blue-500 outline-none transition-all"
+              className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white font-sans h-32 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all leading-relaxed"
             />
           </div>
         </div>
 
         {/* Ticks Builder */}
-        <div className="space-y-4 pt-6 border-t border-slate-800">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold font-mono">Market Ticks (Timeline)</h2>
+        <div className="space-y-6 pt-8 border-t border-white/10">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-sans font-bold text-white flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+              Market Ticks (Timeline)
+            </h2>
             <button 
               type="button"
               onClick={handleAddTick}
-              className="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded transition-colors"
+              className="text-sm font-sans font-medium bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors border border-white/5"
             >
               + Add Tick
             </button>
           </div>
 
-          {ticks.map((tick, index) => (
-            <div key={index} className="flex gap-4 items-start bg-slate-950 p-4 rounded border border-slate-800">
-              <div className="w-16 flex-shrink-0 pt-2 text-slate-500 font-mono text-sm">
-                Tick {tick.tick}
-              </div>
-              <div className="flex-grow space-y-3">
-                <input 
-                  type="text" 
-                  required
-                  value={tick.event}
-                  onChange={(e) => handleTickChange(index, 'event', e.target.value)}
-                  placeholder="e.g. Market stable. USDC trading at $1.00."
-                  className="w-full bg-transparent border-b border-slate-800 pb-2 text-white focus:border-blue-500 outline-none transition-all text-sm"
-                />
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">Target Asset Price: $</span>
+          <div className="space-y-4">
+            {ticks.map((tick, index) => (
+              <div key={index} className="flex flex-col sm:flex-row gap-6 items-start sm:items-center bg-black/40 p-6 rounded-xl border border-white/5 transition-all hover:border-white/10">
+                <div className="w-20 flex-shrink-0 text-slate-400 font-mono text-sm bg-white/5 px-3 py-1 rounded text-center">
+                  TICK {tick.tick}
+                </div>
+                <div className="flex-grow space-y-4 w-full">
                   <input 
-                    type="number" 
+                    type="text" 
                     required
-                    value={tick.price}
-                    onChange={(e) => handleTickChange(index, 'price', parseFloat(e.target.value))}
-                    className="bg-transparent border-b border-slate-800 w-32 pb-1 text-white focus:border-blue-500 outline-none transition-all text-sm"
+                    value={tick.event}
+                    onChange={(e) => handleTickChange(index, 'event', e.target.value)}
+                    placeholder="e.g. Market stable. USDC trading at $1.00."
+                    className="w-full bg-transparent border-b border-white/10 pb-2 text-white font-sans focus:border-blue-500 outline-none transition-all text-base"
                   />
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-slate-500 font-sans">Target Asset Price: <span className="text-white">$</span></span>
+                    <input 
+                      type="number" 
+                      required
+                      value={tick.price}
+                      onChange={(e) => handleTickChange(index, 'price', parseFloat(e.target.value))}
+                      className="bg-black/50 border border-white/10 rounded px-3 py-1 text-white font-mono focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm w-32"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Submit */}
-        <div className="pt-6 flex justify-between items-center">
+        <div className="pt-8 flex flex-col sm:flex-row justify-end items-center gap-6 border-t border-white/10 mt-8">
           <button 
             type="button" 
             onClick={() => {
-              // Bypass completely for demo
               const tempId = `arena_bypass_${Date.now()}`;
               const tempArena = { id: tempId, name, description, ticks };
               localStorage.setItem('temp_arena', JSON.stringify(tempArena));
               router.push('/');
             }}
-            className="bg-transparent border border-slate-700 text-slate-400 hover:text-white font-mono font-bold py-3 px-4 rounded transition-colors text-xs"
+            className="w-full sm:w-auto bg-transparent text-slate-400 hover:text-white font-sans font-medium py-4 px-6 rounded-xl transition-colors disabled:opacity-50"
           >
             Bypass Tx (Demo Mode)
           </button>
           <button 
             type="submit" 
             disabled={isSubmitting || isTxPending || isTxConfirming}
-            className="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+            className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-sans font-bold py-4 px-10 rounded-xl transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 flex justify-center items-center gap-2"
           >
             {isTxConfirming ? (
               <>Publishing on-chain...</>
             ) : isTxPending ? (
               <>Sign Transaction...</>
             ) : (
-              <>Stake & Publish Arena</>
+              <>Stake & Publish Arena &rarr;</>
             )}
           </button>
         </div>
           
-          {isTxSuccess && (
-            <p className="mt-4 text-green-400 text-center text-sm">
-              Arena published successfully! Redirecting...
-            </p>
-          )}
+        {isTxSuccess && (
+          <div className="mt-6 bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-xl font-mono text-sm text-center">
+            Arena published successfully! Redirecting...
+          </div>
+        )}
       </form>
     </div>
   );
