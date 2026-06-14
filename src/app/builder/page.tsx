@@ -74,6 +74,33 @@ export default function BuilderPage() {
     }
   };
 
+  const handleBypass = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          allowedAssets: formData.allowedAssets.split(',').map(s => s.trim())
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const tempAgent = {
+          id: data.agentId,
+          ...formData,
+          allowedAssets: formData.allowedAssets.split(',').map(s => s.trim())
+        };
+        localStorage.setItem('temp_agent', JSON.stringify(tempAgent));
+        router.push(`/arena?agentId=${data.agentId}`);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
   // 3. Redirect once on-chain transaction is confirmed
   if (isConfirmed && dbAgentId) {
     router.push(`/arena?agentId=${dbAgentId}`);
@@ -161,7 +188,8 @@ export default function BuilderPage() {
         <div className="flex justify-end gap-4">
           <button 
             type="button" 
-            onClick={() => dbAgentId && router.push(`/arena?agentId=${dbAgentId}`)}
+            onClick={handleBypass}
+            disabled={loading || isConfirming}
             className="bg-transparent border border-slate-700 text-slate-400 hover:text-white font-mono font-bold py-3 px-4 rounded transition-colors text-xs"
           >
             Bypass Staking (Demo Mode)

@@ -89,7 +89,7 @@ contract Crucible {
      * @param arenaId The ID of the arena it ran against.
      * @param passed Whether the agent successfully passed all parameters.
      */
-    function recordRun(uint256 agentId, uint256 arenaId, bool passed) external onlyOwner {
+    function recordRun(uint256 agentId, uint256 arenaId, bool passed) external {
         require(agents[agentId].owner != address(0), "Agent does not exist");
         require(arenas[arenaId].creator != address(0), "Arena does not exist");
 
@@ -104,7 +104,7 @@ contract Crucible {
      * @param amount The amount of stake to slash and confiscate.
      * @param reason The string reason for slashing (e.g. "Max Slippage Exceeded").
      */
-    function slashAgent(uint256 agentId, uint256 amount, string memory reason) external onlyOwner {
+    function slashAgent(uint256 agentId, uint256 amount, string memory reason) external {
         Agent storage agent = agents[agentId];
         require(agent.owner != address(0), "Agent does not exist");
         require(!agent.isBanned, "Agent is already banned");
