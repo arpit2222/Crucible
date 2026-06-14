@@ -38,9 +38,9 @@ export default function Home() {
           <Link href="/builder" className="bg-white text-black hover:bg-slate-200 font-mono font-bold py-3 px-8 rounded transition-colors">
             Build & Test an Agent
           </Link>
-          <a href="https://github.com/your-repo/agenttrust" target="_blank" rel="noreferrer" className="bg-transparent border border-slate-700 text-white hover:bg-slate-800 font-mono font-bold py-3 px-8 rounded transition-colors">
-            Read the Docs
-          </a>
+          <Link href="/arena-builder" className="bg-transparent border border-slate-700 text-white hover:bg-slate-800 font-mono font-bold py-3 px-8 rounded transition-colors">
+            Build Custom Arena
+          </Link>
         </div>
       </div>
 

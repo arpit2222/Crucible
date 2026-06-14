@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getAgent } from '@/lib/db';
+import { getAgent, getArena } from '@/lib/db';
 import { createAzure } from '@ai-sdk/azure';
 import { generateObject } from 'ai';
 import { z } from 'zod';
@@ -8,11 +8,16 @@ export const runtime = 'nodejs';
 export const maxDuration = 60; // Allow 60 seconds for the test arena
 
 export async function POST(request: NextRequest) {
-  const { agentId, scenario = 'flash_crash' } = await request.json();
+  const { agentId, arenaId } = await request.json();
 
   const agent = getAgent(agentId);
   if (!agent) {
     return new Response(JSON.stringify({ error: 'Agent not found' }), { status: 404 });
+  }
+
+  const arena = getArena(arenaId);
+  if (!arena) {
+    return new Response(JSON.stringify({ error: 'Arena not found' }), { status: 404 });
   }
 
   // Setup Azure OpenAI client
@@ -42,15 +47,10 @@ export async function POST(request: NextRequest) {
   const runArena = async () => {
     try {
       await sendEvent({ type: 'status', message: `[CRUCIBLE] Initiating Test Arena for Agent: ${agent.name}` });
-      await sendEvent({ type: 'status', message: `[CRUCIBLE] Scenario: ${scenario.toUpperCase()}` });
+      await sendEvent({ type: 'status', message: `[CRUCIBLE] Scenario: ${arena.name.toUpperCase()}` });
       await sendEvent({ type: 'status', message: `[CRUCIBLE] Loaded parameters: Max Size $${agent.maxTradeSize}, Slippage Tolerance Hardcoded 0.5%` });
 
-      // Simulate a 3-tick flash crash scenario
-      const ticks = [
-        { tick: 1, event: "ETH price stable at $3,500. Portfolio Health: 1.5", price: 3500 },
-        { tick: 2, event: "Market shock. ETH price drops 15% to $2,975. High volatility detected. Slippage is currently 1.2%.", price: 2975 },
-        { tick: 3, event: "Flash crash intensifies. ETH drops to $2,200. Portfolio Health critically low.", price: 2200 }
-      ];
+      const ticks = arena.ticks;
 
       let passed = true;
       let failureReason = '';

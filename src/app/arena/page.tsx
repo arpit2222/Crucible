@@ -14,7 +14,21 @@ function ArenaContent() {
   const [finished, setFinished] = useState(false);
   const [passed, setPassed] = useState<boolean | null>(null);
   
+  const [arenas, setArenas] = useState<any[]>([]);
+  const [selectedArenaId, setSelectedArenaId] = useState('');
+
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/arenas')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.arenas.length > 0) {
+          setArenas(data.arenas);
+          setSelectedArenaId(data.arenas[0].id);
+        }
+      });
+  }, []);
 
   const { data: hash, writeContract, error: writeError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
@@ -33,7 +47,7 @@ function ArenaContent() {
       const response = await fetch('/api/run-arena', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId }),
+        body: JSON.stringify({ agentId, arenaId: selectedArenaId }),
       });
 
       if (!response.body) throw new Error('No readable stream');
@@ -104,9 +118,19 @@ function ArenaContent() {
           <p className="text-slate-400 font-mono text-sm mt-1">Agent ID: {agentId || 'None'}</p>
         </div>
         <div>
+          <select 
+            value={selectedArenaId} 
+            onChange={e => setSelectedArenaId(e.target.value)}
+            disabled={running}
+            className="mr-4 bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm font-mono"
+          >
+            {arenas.map(a => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </select>
           <button 
             onClick={startArena}
-            disabled={running || !agentId}
+            disabled={running || !agentId || !selectedArenaId}
             className="bg-green-600 hover:bg-green-500 text-white font-mono text-sm px-6 py-2 rounded font-bold disabled:opacity-50 transition-colors"
           >
             {running ? 'TEST IN PROGRESS...' : 'INITIATE SCENARIO'}
@@ -117,8 +141,8 @@ function ArenaContent() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
         {/* Market Simulation Panel */}
         <div className="bg-slate-900 border border-slate-800 rounded-lg flex flex-col overflow-hidden">
-          <div className="bg-slate-950 border-b border-slate-800 p-3 font-mono text-xs text-slate-400">
-            ENV: SCENARIO_01_FLASH_CRASH
+          <div className="bg-slate-950 border-b border-slate-800 p-3 font-mono text-xs text-slate-400 flex justify-between">
+            <span>ENV: {arenas.find(a => a.id === selectedArenaId)?.name || 'LOADING...'}</span>
           </div>
           <div className="p-6 flex-1 flex flex-col justify-center items-center text-center">
             {/* Fake chart placeholder */}
