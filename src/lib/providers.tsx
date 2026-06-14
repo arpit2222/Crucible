@@ -13,7 +13,7 @@ import { arbitrumSepolia } from 'wagmi/chains';
 
 const config = getDefaultConfig({
   appName: 'Crucible Protocol',
-  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || 'a5e4252327c8172df3b0b72ebdfea544',
+  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || 'fb04129e805ad58aa6f0271d9f86e95e',
   chains: [arbitrumSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
