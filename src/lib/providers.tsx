@@ -9,12 +9,12 @@ import {
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { arbitrumSepolia, foundry } from 'wagmi/chains';
+import { arbitrumSepolia } from 'wagmi/chains';
 
 const config = getDefaultConfig({
   appName: 'Crucible Protocol',
   projectId: 'a5e4252327c8172df3b0b72ebdfea544', // Replaced dummy with random id
-  chains: [arbitrumSepolia, foundry],
+  chains: [arbitrumSepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
